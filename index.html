@@ -3,69 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Школьное расписание</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Электронный дневник</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="firebase.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <div class="app-header">
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="schedule">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Расписание
-                </button>
-                <button class="tab-btn" data-tab="bells">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 6.44V9.77M12.02 2C8.34 2 5.36 4.98 5.36 8.66V10.76C5.36 11.44 5.08 12.46 4.73 13.04L3.46 15.16C2.68 16.47 3.22 17.93 4.66 18.41C9.44 20 14.61 20 19.39 18.41C20.74 17.96 21.32 16.38 20.59 15.16L19.32 13.04C18.97 12.46 18.69 11.43 18.69 10.76V8.66C18.68 5 15.68 2 12.02 2Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"/>
-                        <path d="M15.33 18.82C15.33 20.65 13.83 22.15 12 22.15C11.09 22.15 10.25 21.77 9.65 21.17C9.05 20.57 8.67 19.73 8.67 18.82" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"/>
-                    </svg>
-                    Звонки
-                </button>
-                <button class="tab-btn" data-tab="homework">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21.66 10.44L20.68 14.62C19.84 18.23 18.18 19.69 15.06 19.39C14.56 19.35 14.02 19.26 13.44 19.12L11.76 18.72C7.59 17.73 6.3 15.67 7.28 11.49L8.26 7.30001C8.46 6.45001 8.7 5.71001 9 5.10001C10.17 2.68001 12.16 2.03001 15.5 2.82001L17.17 3.21001C21.36 4.19001 22.64 6.26001 21.66 10.44Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M15.06 19.39C14.44 19.81 13.66 20.16 12.71 20.47L11.13 20.99C7.16001 22.27 5.07001 21.2 3.78001 17.23L2.50001 13.28C1.22001 9.31001 2.28001 7.21001 6.25001 5.93001L7.83001 5.41001C8.24001 5.28001 8.63001 5.17001 9.00001 5.10001C8.70001 5.71001 8.46001 6.45001 8.26001 7.30001L7.28001 11.49C6.30001 15.67 7.59001 17.73 11.76 18.72L13.44 19.12C14.02 19.26 14.56 19.35 15.06 19.39Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Домашка
-                </button>
+<body class="bg-black text-white min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-md">
+        <!-- Вкладки сверху -->
+        <div id="days-switcher" class="flex justify-between items-center mb-8 bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-3 border border-zinc-800">
+            <button onclick="changeDay('prev')" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-colors">
+                <i class="fas fa-chevron-left text-zinc-500"></i>
+            </button>
+            
+            <div class="text-center day-slide-container">
+                <div class="day-content active">
+                    <div class="text-white font-medium" id="current-day">Вторник</div>
+                    <div class="text-xs text-zinc-500" id="current-date">12 января</div>
+                </div>
+            </div>
+            
+            <button onclick="changeDay('next')" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-colors">
+                <i class="fas fa-chevron-right text-zinc-500"></i>
+            </button>
+        </div>
+
+        <!-- Контент вкладок -->
+        <div id="schedule" class="tab-content">
+            <div id="lessons-container" class="space-y-2">
+                <!-- Сюда будут добавлятся уроки -->
             </div>
         </div>
 
-        <div class="content">
-            <div id="schedule" class="tab-content active">
-                <div class="day-selector">
-                    <button class="day-btn" data-day="monday">Пн</button>
-                    <button class="day-btn" data-day="tuesday">Вт</button>
-                    <button class="day-btn" data-day="wednesday">Ср</button>
-                    <button class="day-btn" data-day="thursday">Чт</button>
-                    <button class="day-btn" data-day="friday">Пт</button>
+        <div id="bells" class="tab-content hidden">
+            <div class="space-y-4">
+                <div id="regular-schedule" class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800">
+                    <div class="text-lg font-medium mb-4">Расписание звонков</div>
+                    <div class="space-y-3">
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">1 урок</span>
+                                    <span class="text-sm">8:30 - 9:10</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">10 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">2 урок</span>
+                                    <span class="text-sm">9:20 - 10:00</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">5 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">3 урок</span>
+                                    <span class="text-sm">10:05 - 10:45</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">15 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">4 урок</span>
+                                    <span class="text-sm">11:00 - 11:40</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">10 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">5 урок</span>
+                                    <span class="text-sm">11:50 - 12:30</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">15 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">6 урок</span>
+                                    <span class="text-sm">12:45 - 13:25</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">10 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">7 урок</span>
+                                    <span class="text-sm">13:35 - 14:15</span>
+                                </div>
+                                <div class="text-xs text-zinc-600">5 мин</div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+
+                        <div class="bell-item">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-zinc-500 w-16">8 урок</span>
+                                    <span class="text-sm">14:20 - 15:00</span>
+                                </div>
+                            </div>
+                            <div class="mt-1 h-1 bg-zinc-800/50 rounded overflow-hidden">
+                                <div class="bell-progress h-full bg-zinc-700 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="schedule-content"></div>
+            </div>
+        </div>
+
+        <div id="homework" class="tab-content hidden">
+            <div class="space-y-4" id="homework-container">
+                <!-- ДЗ будет добавляться динамически -->
+            </div>
+            
+            <!-- Кнопка добавления (центрирование) -->
+            <div class="fixed bottom-[100px] left-0 right-0 flex justify-center px-4">
+                <button onclick="openModal()" class="bg-zinc-900/50 backdrop-blur-lg border border-zinc-800 rounded-2xl px-8 py-3 flex items-center justify-center shadow-lg hover:bg-zinc-900 transition-all active:scale-95">
+                    <i class="fas fa-plus mr-2"></i>
+                    <span class="text-sm font-medium">Добавить задание</span>
+                </button>
             </div>
 
-            <div id="bells" class="tab-content">
-                <div class="bells-content"></div>
-            </div>
+            <!-- Модальное окно -->
+            <div id="homework-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center">
+                <div id="modal-content" class="bg-black w-full h-[55vh] sm:h-auto sm:rounded-3xl sm:max-w-md border-t border-zinc-800 sm:border animate-slide-up flex flex-col">
+                    <!-- Заголовок -->
+                    <div class="flex items-center justify-between p-3 border-b border-zinc-800">
+                        <h2 class="text-lg font-medium">Новое задание</h2>
+                        <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-900 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
 
-            <div id="homework" class="tab-content">
-                <div class="homework-header">
-                    <button class="add-homework-btn" id="addHomeworkBtn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 12H18M12 18V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        Добавить домашку
-                    </button>
+                    <!-- Контент -->
+                    <div class="p-3 space-y-3">
+                        <!-- Выбор предмета -->
+                        <div>
+                            <label class="block text-zinc-500 text-sm mb-1.5">Предмет</label>
+                            <div class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl border border-zinc-800 px-4 py-2.5">
+                                <select class="w-full bg-transparent focus:outline-none appearance-none text-zinc-400" style="-webkit-appearance: none;">
+                                    <option value="" disabled selected class="bg-black">Выберите предмет</option>
+                                    <option value="algebra" class="bg-black">Алгебра</option>
+                                    <option value="biology" class="bg-black">Биология</option>
+                                    <option value="geography" class="bg-black">География</option>
+                                    <option value="geometry" class="bg-black">Геометрия</option>
+                                    <option value="history" class="bg-black">История</option>
+                                    <option value="informatics" class="bg-black">Информатика/Труды</option>
+                                    <option value="labor" class="bg-black">Труды/Информатика</option>
+                                    <option value="literature" class="bg-black">Литература</option>
+                                    <option value="obzh" class="bg-black">ОБЖ</option>
+                                    <option value="obschestvo" class="bg-black">Обществознание</option>
+                                    <option value="russian" class="bg-black">Русский язык</option>
+                                    <option value="physics" class="bg-black">Физика</option>
+                                    <option value="chemistry" class="bg-black">Химия</option>
+                                    <option value="english" class="bg-black">Английский язык</option>
+                                    <option value="probability" class="bg-black">Вероятность и статистика</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Текст домашнего задания -->
+                        <div>
+                            <label class="block text-zinc-500 text-sm mb-1.5">Текст задания</label>
+                            <div class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl border border-zinc-800">
+                                <textarea 
+                                    class="w-full bg-transparent px-4 py-2.5 text-white focus:outline-none min-h-[70px] resize-none"
+                                    placeholder="Введите текст домашнего задания..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Кнопка сохранения -->
+                        <div class="mt-1">
+                            <button id="save-homework-btn" class="w-full bg-zinc-900/50 backdrop-blur-lg border border-zinc-800 rounded-2xl py-2.5 font-medium hover:bg-zinc-900 transition-all active:scale-[0.98]">
+                                Сохранить
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="homework-content"></div>
+            </div>
+        </div>
+
+        <!-- Нижняя навигация -->
+        <div class="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-zinc-800">
+            <div class="grid grid-cols-3 max-w-md mx-auto">
+                <button onclick="changeTab('schedule')" class="tab-btn active flex flex-col items-center justify-center py-4">
+                    <i class="fas fa-calendar-alt mb-1.5 text-lg"></i>
+                    <span class="text-[10px] font-medium">Расписание</span>
+                </button>
+                <button onclick="changeTab('bells')" class="tab-btn flex flex-col items-center justify-center py-4">
+                    <i class="fas fa-clock mb-1.5 text-lg"></i>
+                    <span class="text-[10px] font-medium">Звонки</span>
+                </button>
+                <button onclick="changeTab('homework')" class="tab-btn flex flex-col items-center justify-center py-4">
+                    <i class="fas fa-book mb-1.5 text-lg"></i>
+                    <span class="text-[10px] font-medium">ДЗ</span>
+                </button>
             </div>
         </div>
     </div>
-    <script src="app.js"></script>
 </body>
 </html>
