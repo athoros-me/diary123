@@ -317,9 +317,22 @@
 }
 
 @media (max-width: 640px) {
+    #modal-content {
+        will-change: transform;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        height: 100vh !important;
+        border-top: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow-y: auto;
+    }
+
     @keyframes modal-content-show {
         from {
-            transform: translateY(100%);
+            transform: translateY(100vh);
         }
         to {
             transform: translateY(0);
@@ -331,14 +344,8 @@
             transform: translateY(0);
         }
         to {
-            transform: translateY(100%);
+            transform: translateY(100vh);
         }
-    }
-
-    #modal-content {
-        will-change: transform;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
     }
 
     #modal-content.showing {
@@ -349,9 +356,25 @@
         animation: modal-content-hide 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
     }
 
-    #modal-content {
-        touch-action: pan-y;
-        -webkit-overflow-scrolling: touch;
+    #modal-content textarea {
+        min-height: 150px;
+    }
+
+    #modal-content .modal-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 16px;
+        background: black;
+        border-top: 1px solid rgb(63, 63, 70);
+        z-index: 10;
+    }
+
+    #modal-content .modal-body {
+        padding-bottom: 100px;
+        height: 100%;
+        overflow-y: auto;
     }
 }
 
