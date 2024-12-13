@@ -407,13 +407,6 @@
     }
 }
 
-@media (max-width: 640px) {
-    .loader-container {
-        min-height: calc(100vh - 180px);
-        padding-bottom: 80px;
-    }
-}
-
 #lessons-container .loader-container {
     display: flex;
     flex-direction: column;
@@ -437,9 +430,8 @@
     font-size: 0.9375rem;
 }
 
-@media (max-width: 640px) {
-    #lessons-container .loader-container {
-        min-height: calc(100vh - 180px);
-        padding-bottom: 80px;
+@keyframes loader-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
