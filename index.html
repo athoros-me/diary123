@@ -159,7 +159,7 @@
             </div>
 
             <div id="homework-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center">
-                <div id="modal-content" class="bg-black w-full h-[55vh] sm:h-auto sm:rounded-3xl sm:max-w-md border-t border-zinc-800 sm:border animate-slide-up flex flex-col">
+                <div id="modal-content" class="bg-black w-full sm:rounded-3xl sm:max-w-md border-t border-zinc-800 sm:border animate-slide-up flex flex-col">
                     <div class="flex items-center justify-between p-3 border-b border-zinc-800">
                         <h2 class="text-lg font-medium">Новое задание</h2>
                         <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-900 transition-colors">
@@ -167,11 +167,11 @@
                         </button>
                     </div>
 
-                    <div class="p-3 space-y-3">
+                    <div class="modal-body p-3 space-y-3">
                         <div>
                             <label class="block text-zinc-500 text-sm mb-1.5">Предмет</label>
                             <div class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl border border-zinc-800 px-4 py-2.5">
-                                <select class="w-full bg-transparent focus:outline-none appearance-none text-zinc-400" style="-webkit-appearance: none;">
+                                <select class="w-full bg-transparent focus:outline-none appearance-none text-zinc-400">
                                     <option value="" disabled selected class="bg-black">Выберите предмет</option>
                                     <option value="algebra" class="bg-black">Алгебра</option>
                                     <option value="biology" class="bg-black">Биология</option>
@@ -196,17 +196,17 @@
                             <label class="block text-zinc-500 text-sm mb-1.5">Текст задания</label>
                             <div class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl border border-zinc-800">
                                 <textarea 
-                                    class="w-full bg-transparent px-4 py-2.5 text-white focus:outline-none min-h-[70px] resize-none"
+                                    class="w-full bg-transparent px-4 py-2.5 text-white focus:outline-none resize-none"
                                     placeholder="Введите текст домашнего задания..."
                                 ></textarea>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mt-1">
-                            <button id="save-homework-btn" class="w-full bg-zinc-900/50 backdrop-blur-lg border border-zinc-800 rounded-2xl py-2.5 font-medium hover:bg-zinc-900 transition-all active:scale-[0.98]">
-                                Сохранить
-                            </button>
-                        </div>
+                    <div class="modal-footer mt-1">
+                        <button id="save-homework-btn" class="w-full bg-zinc-900/50 backdrop-blur-lg border border-zinc-800 rounded-2xl py-2.5 font-medium hover:bg-zinc-900 transition-all active:scale-[0.98]">
+                            Сохранить
+                        </button>
                     </div>
                 </div>
             </div>
