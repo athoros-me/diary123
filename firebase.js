@@ -241,18 +241,11 @@ function getNextLessonDate(subject) {
 function loadHomework() {
     const container = document.getElementById('homework-container');
     
-    container.innerHTML = `
-        <div class="loader-container">
-            <div class="loader"></div>
-            <div class="loader-text">Загрузка заданий...</div>
-        </div>
-    `;
-
+    const weekDates = [];
     const today = new Date();
     const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
     const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
     
-    let weekDates = [];
     for(let i = 0; i < 7; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
@@ -267,69 +260,49 @@ function loadHomework() {
         }
     }
 
-    const oldBlocks = container.querySelectorAll('.homework-block');
-    if (oldBlocks.length > 0) {
-        oldBlocks.forEach(block => {
-            block.classList.add('removing');
-        });
-        setTimeout(() => {
-            container.innerHTML = '';
-            loadNewHomework();
-        }, 200);
-    } else {
-        loadNewHomework();
-    }
+    container.innerHTML = '';
 
-    function loadNewHomework() {
-        weekDates.forEach((dayInfo, index) => {
-            database.ref('homework/' + dayInfo.dateString).once('value', (snapshot) => {
-                if (!snapshot.exists()) return; 
+    weekDates.forEach((dayInfo, index) => {
+        database.ref('homework/' + dayInfo.dateString).once('value', (snapshot) => {
+            if (!snapshot.exists()) return;
 
-                const homeworkData = {};
-
-                snapshot.forEach((childSnapshot) => {
-                    const homework = childSnapshot.val();
-                    homeworkData[homework.subject] = homework.homework;
-                });
-
-                if (Object.keys(homeworkData).length > 0) {
-                    const homeworkBlock = document.createElement('div');
-                    homeworkBlock.className = 'homework-block bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800 mb-4';
-                    homeworkBlock.style.animationDelay = `${index * 0.1}s`;
-                    
-                    homeworkBlock.innerHTML = `
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="font-medium">${dayInfo.dayName}</div>
-                            <div class="text-zinc-500 text-sm">${dayInfo.formattedDate}</div>
-                        </div>
-                        <div class="space-y-2">
-                            ${Object.entries(homeworkData).map(([subject, homework]) => `
-                                <div class="flex justify-between items-center">
-                                    <div class="text-zinc-500">${subject}</div>
-                                    <div class="text-sm">${homework}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-
-                    container.appendChild(homeworkBlock);
-                }
-
-                if (dayInfo.dayName === days[currentDate.getDay()]) {
-                    updateLessons(dayInfo.dayName, homeworkData);
-                }
+            const homeworkData = {};
+            snapshot.forEach((childSnapshot) => {
+                const homework = childSnapshot.val();
+                homeworkData[homework.subject] = homework.homework;
             });
-        });
 
-        setTimeout(() => {
-            if (container.innerHTML === '') {
+            if (Object.keys(homeworkData).length > 0) {
+                const homeworkBlock = document.createElement('div');
+                homeworkBlock.className = 'homework-block bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800 mb-4';
+                homeworkBlock.style.animationDelay = `${index * 0.1}s`;
+                
+                homeworkBlock.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="font-medium">${dayInfo.dayName}</div>
+                        <div class="text-zinc-500 text-sm">${dayInfo.formattedDate}</div>
+                    </div>
+                    <div class="space-y-2">
+                        ${Object.entries(homeworkData).map(([subject, homework]) => `
+                            <div class="flex justify-between items-center">
+                                <div class="text-zinc-500">${subject}</div>
+                                <div class="text-sm">${homework}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                container.appendChild(homeworkBlock);
+            }
+
+            if (container.children.length === 0) {
                 const emptyBlock = document.createElement('div');
                 emptyBlock.className = 'homework-block bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800 text-zinc-500 text-center';
                 emptyBlock.textContent = 'Нет домашних заданий';
                 container.appendChild(emptyBlock);
             }
-        }, 500);
-    }
+        });
+    });
 }
 
 function updateLessons(day, homeworkData = {}) {
