@@ -240,6 +240,14 @@ function getNextLessonDate(subject) {
 
 function loadHomework() {
     const container = document.getElementById('homework-container');
+    
+    container.innerHTML = `
+        <div class="loader-container">
+            <div class="loader"></div>
+            <div class="loader-text">Загрузка заданий...</div>
+        </div>
+    `;
+
     const today = new Date();
     const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
     const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -331,6 +339,14 @@ function updateLessons(day, homeworkData = {}) {
         return;
     }
 
+    // Показываем лоадер
+    container.innerHTML = `
+        <div class="loader-container">
+            <div class="loader"></div>
+            <div class="loader-text">Загрузка расписания...</div>
+        </div>
+    `;
+
     const lessons = schedule[day];
     if (!lessons) {
         container.innerHTML = `
@@ -354,7 +370,8 @@ function updateLessons(day, homeworkData = {}) {
             });
         }
 
-        container.innerHTML = '';
+        const tempContainer = document.createElement('div');
+        tempContainer.className = 'content-fade-in';
 
         lessons.forEach(lesson => {
             const homework = currentHomework[lesson.subject] || lesson.homework;
@@ -372,8 +389,20 @@ function updateLessons(day, homeworkData = {}) {
                 </div>
             `;
             
-            container.appendChild(lessonElement);
+            tempContainer.appendChild(lessonElement);
         });
+
+        setTimeout(() => {
+            container.innerHTML = '';
+            container.appendChild(tempContainer);
+        }, 500);
+    }).catch(error => {
+        container.innerHTML = `
+            <div class="bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800 text-zinc-500 text-center">
+                Ошибка загрузки данных
+            </div>
+        `;
+        console.error('Ошибка при загрузке домашних заданий:', error);
     });
 }
 
@@ -493,7 +522,7 @@ function updateBellProgress() {
         if (!endMessage) {
             endMessage = document.createElement('div');
             endMessage.className = 'lessons-ended-message bg-zinc-900/50 backdrop-blur-lg rounded-2xl p-4 border border-zinc-800 text-zinc-500 text-center mt-4';
-            endMessage.textContent = 'Уроки закончились';
+            endMessage.textContent = 'Уроки закончились, кайфуйте';
             container.appendChild(endMessage);
         }
         
